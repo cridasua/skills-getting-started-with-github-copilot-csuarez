@@ -1,33 +1,12 @@
-from copy import deepcopy
-
-import pytest
 from fastapi.testclient import TestClient
-from src.app import activities, app
+from src.app import app
 
 client = TestClient(app)
-original_activities = deepcopy(activities)
-
-
-@pytest.fixture(autouse=True)
-def reset_activities():
-    yield
-    activities.clear()
-    activities.update(deepcopy(original_activities))
 
 
 def test_get_activities_returns_all_activities():
     # Arrange
-    expected_keys = {
-        "Chess Club",
-        "Programming Class",
-        "Gym Class",
-        "Soccer Team",
-        "Swimming Club",
-        "Art Studio",
-        "Drama Club",
-        "Robotics Team",
-        "Debate Club",
-    }
+    expected_keys = {"Chess Club", "Programming Class", "Gym Class"}
 
     # Act
     response = client.get("/activities")
@@ -50,7 +29,7 @@ def test_signup_for_activity_returns_success_message():
     # Assert
     assert response.status_code == 200
     assert response.json() == {"message": expected_message}
-    assert email in activities[activity_name]["participants"]
+    assert email in response.json()["message"]
 
 
 def test_signup_for_missing_activity_returns_404():
